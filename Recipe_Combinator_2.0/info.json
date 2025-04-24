@@ -2,8 +2,8 @@
   "name": "Recipe_Combinator_2.0",
   "version": "0.1.0",
   "title": "Recipe Combinator 2.0",
-  "author": "scruffy-looking volt-herder",
+  "author": "scruffy-looking volt-herder, LuziferSenpai and TheRustyKnife",
   "factorio_version": "2.0",
-  "dependencies": ["base >= 1.1","stdlib2"],
+  "dependencies": ["base >= 1.1","stdlib2","rusty-locale"],
   "description": "Recipe Combinator for Factorio 2.0"
 }

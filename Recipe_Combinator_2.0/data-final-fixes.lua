@@ -1,3 +1,14 @@
+local function hook_newindex(table, hook)
+	local raw_mt = getmetatable(table) or {}
+	setmetatable(table, raw_mt)
+	local super_newindex = raw_mt.__newindex or rawset
+	function raw_mt.__newindex(self, key, value)
+		hook(self, key, value, function() return super_newindex(self, key, value); end)
+	end
+end
+
+
+
 
 local function ends_with(str, ending)
     return ending == "" or str:sub(-#ending) == ending
@@ -28,21 +39,24 @@ local function process_recipe(name, recipe)
             local new_effect={type="unlock-recipe", recipe=name.."_rcomb"}
 
             table.insert(tech.effects,new_effect)
-            print("add recipe to tech for "..name)
 
             local test=0
           end
         end
     end
 end
-
-
-
-
 end
 
 
 
-
  --Generate signals for all existing recipes that need it
-for name, recipe in pairs(data.raw['recipe']) do process_recipe(name, recipe); end
+for name, recipe in pairs(data.raw['recipe']) do 
+ -- print("Process existing recipe "..name)
+  process_recipe(name, recipe)
+end
+
+
+hook_newindex(data.raw['recipe'], function(self, key, value, super)
+	if value ~= nil then process_recipe(key, value); end --TODO: Remove signals for recipes that get removed
+	super()
+end)

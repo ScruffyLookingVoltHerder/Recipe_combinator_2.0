@@ -10,8 +10,12 @@ print("precompute called")
 
 storage.rc_computed_data={}
 storage.rc_computed_data.recipe_for={}
+storage.rc_computed_data.machines={}
+storage.rc_computed_data.machines.item_map={}
+storage.rc_computed_data.machines.category_map={}
 
 rc_compute.compute_recipes_for()
+rc_compute.build_machine_cache()
 end
 
 rc_compute.compute_recipes_for = function()
@@ -45,4 +49,33 @@ end
 
      
 end
+
+rc_compute.build_machine_cache = function()
+	
+	for name, prototype in pairs(prototypes.entity) do
+		if prototype.crafting_categories and prototype.items_to_place_this then
+			for category in pairs(prototype.crafting_categories) do
+				storage.rc_computed_data.machines.category_map[category] = storage.rc_computed_data.machines.category_map[category] or {}
+				for _, item in pairs(prototype.items_to_place_this) do
+					storage.rc_computed_data.machines.item_map[item.name] = {}
+					table.insert(storage.rc_computed_data.machines.category_map[category], item.name)
+				end
+			end
+		end
+	end
+	for _, recipe in pairs(prototypes.recipe) do
+		for _, product in pairs(recipe.products) do
+			if storage.rc_computed_data.machines.item_map[product.name] ~= nil then
+				table.insert(storage.rc_computed_data.machines.item_map[product.name], recipe.name)
+			end
+		end
+	end
+    local test=0
+end
+
+
+
+
+
 return rc_compute
+

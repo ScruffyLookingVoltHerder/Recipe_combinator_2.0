@@ -107,7 +107,15 @@ combinator.output_proxy.destroy()
 combinator.selector.destroy()
 combinator.signal_cache.destroy()
 
+storage.rc.data[unit_number] = nil
+for k, v in pairs(storage.rc.ordered) do
+	if v.entity.unit_number == unit_number then
+		table.remove(storage.rc.ordered, k)
+		break
+	end
+end
 
+local test=0
 end
 
 function update(combinator, force)
@@ -120,7 +128,6 @@ if combinator.cache_network.signals==nil then
         constant=0,
         comparator="≠"
     }
-    combinator.entity.surface.print("no signal")
     combinator.proxy_behavior.sections[1].filters={}
 end
 
@@ -136,7 +143,7 @@ if combinator.cache_network.signals then
 
 if combinator.settings.mode=="ing" then find_ingredients(combinator) end
 if combinator.settings.mode=="rec" then find_recipes(combinator) end
-
+if combinator.settings.mode=="mac" then find_machines(combinator) end
 
 end
 end
@@ -169,7 +176,7 @@ local ingredients = recipe.ingredients
 local count=input_signal.count
 
 local filters={}
-for i,ingredient in ipairs(ingredients) do
+for _,ingredient in ipairs(ingredients) do
 
 local amount = ingredient.amount
 if combinator.settings.multiply_by_input then amount = amount * count end
@@ -204,7 +211,7 @@ if combinator.settings.restrict_to_planet then recipes = filter_by_planet(combin
 
 local outputs={}
 
-for i, recipe in ipairs(recipes) do
+for _, recipe in ipairs(recipes) do
 	
 	local name = recipe.name
 	local quality = input_signal.signal.quality or "normal"
@@ -232,12 +239,18 @@ combinator.proxy_behavior.sections[1].filters=outputs
 local test=0
 end
 
+function find_machines(combinator)
+
+end
+
 function filter_out_recycling(recipes)
 
 local outputs={}
 
-for i, recipe in ipairs(recipes) do
-if recipe.category ~="recycling" then table.insert(outputs,recipe) end
+if recipes then
+for _, recipe in ipairs(recipes) do
+if not string.match(recipe.category,"recycling")  then table.insert(outputs,recipe) end
+end
 end
 
 return outputs
@@ -250,14 +263,14 @@ function filter_by_planet(combinator, recipes)
 	
 	return recipes
 	--[[
-	for i,recipe in ipairs(recipes) do
+	for _,recipe in ipairs(recipes) do
 		
 	if not recipe.surface_conditions then 
 		table.insert(outputs,recipe) 
 	else
 
 		local conditions_met = true
-		for v, condition in ipairs(recipe.surface_conditions) do
+		for _, condition in ipairs(recipe.surface_conditions) do
 			
 			local planet_conditions = combinator.entity
 			local test=0

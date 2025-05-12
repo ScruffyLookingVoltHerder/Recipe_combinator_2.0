@@ -24,6 +24,9 @@ local function process_recipe(name, recipe)
     new_recipe.name=new_recipe.name.."_rcomb"
     new_recipe.hide_from_signal_gui = false
     new_recipe.show_amount_in_title = true
+    local sg = new_recipe.subgroup
+    local test=0
+    --new_recipe.subgroup=recipe.subgroup
     new_recipe.subgroup="recipe-subgroup"
 
     data.raw.recipe[name.."_rcomb"]=new_recipe

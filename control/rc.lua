@@ -91,7 +91,7 @@ combinator.cache_behavior.circuit_condition={
     comparator="≠"
 }
 
-
+if event.tags then combinator.settings= event.tags.settings end
 
 
 
@@ -201,7 +201,10 @@ function find_recipes(combinator)
 
 local input_signal = combinator.cache_network.signals[1]
 
-if input_signal.signal.type=="recipe" then return end 
+if input_signal.signal.type=="recipe" then 
+	combinator.proxy_behavior.sections[1].filters={}
+	return 
+	end 
 
 recipes = storage.rc_computed_data.recipe_for[input_signal.signal.name]
 
@@ -241,6 +244,47 @@ end
 
 function find_machines(combinator)
 
+	local input_signal = combinator.cache_network.signals[1]
+	if input_signal.signal.type~="recipe" then 
+		combinator.proxy_behavior.sections[1].filters={}
+		return 
+
+		end 
+
+	local recipe = prototypes.recipe[input_signal.signal.name]
+
+	if recipe and recipe.hidden  then recipe = nil; end
+	
+	
+	local outputs = {}
+	local index = 1
+	if recipe and recipe.category then
+		for _, item in pairs(storage.rc_computed_data.machines.category_map[recipe.category] or {}) do
+			for _, recipe in pairs(storage.rc_computed_data.machines.item_map[item]) do
+				local mac_res = combinator.entity.force.recipes[recipe]
+				if mac_res and not mac_res.hidden and mac_res.enabled then
+
+					local signal = 0
+					local quantity = 1
+
+					if combinator.settings.multiply_by_input then quantity = input_signal.count end
+
+					local filter = {min=quantity,value={type="recipe",name=item,comparator="=",quality="normal"}}
+					table.insert(outputs,filter)
+					
+
+						
+
+					index = index + 1
+					break
+				end
+			end
+		end
+		combinator.proxy_behavior.sections[1].filters=outputs
+	else
+		combinator.proxy_behavior.sections[1].filters={}
+	end
+	
 end
 
 function filter_out_recycling(recipes)
@@ -392,6 +436,49 @@ function check_state_changed(event)
 end
 
 
+local function player_setup_blueprint(event)
+	log("player_setup_blueprint")
+	log(serpent.block(event))
+	local player = game.players[event.player_index]
+	-- get new blueprint or fake blueprint when selecting a new area
+	local bp = player.blueprint_to_setup
+	if not bp or not bp.valid_for_read then
+	  bp = player.cursor_stack
+	end
+	if not bp or not bp.valid_for_read then
+	  return
+	end
+	-- get entities in blueprint
+	local entities = bp.get_blueprint_entities()
+	if not entities then
+	  return
+	end
+	-- get mapping of blueprint entities to source entities
+	if event.mapping.valid then
+	  local map = event.mapping.get()
+
+	  for _, bp_entity in pairs(entities) do
+		if bp_entity.name == "recipe_combinator" then
+		  -- set tag for our example tag-chest
+		  local id = bp_entity.entity_number
+		  local entity = map[id]
+		  if entity then
+			log("setting tag for bp_entity "..id..":"..bp_entity.name.." = "..entity.unit_number)
+
+			settings_tag=storage.rc.data[entity.unit_number].settings
+			bp.set_blueprint_entity_tag(id, "settings", settings_tag)
+		  else
+			log("missing mapping for bp_entity "..id..":"..bp_entity.name)
+		  end
+		end
+	  end
+	else
+	  log("no entity mapping in event")
+	end
+  end
+
+
+
 Event.register(defines.events.on_built_entity, on_built,Event.Filters.entity.name,filter)
 
 --Event.register(defines.events.on_built_entity,on_built)
@@ -436,10 +523,6 @@ Event.on_configuration_changed(function()
     rc_compute.precompute()
 end)
 
-
-
-
-
 Event.register(defines.events.on_gui_opened,function(event)
 
     if not event.entity then return end
@@ -458,3 +541,4 @@ Event.register(defines.events.on_gui_closed,function(event)
 end)
 
 Event.register(defines.events.on_gui_checked_state_changed,check_state_changed)
+Event.register(defines.events.on_player_setup_blueprint,player_setup_blueprint)

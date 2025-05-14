@@ -10,7 +10,7 @@ data:extend {
     type = 'item-group',
     name = "Recipes",
     order = 'zzz[crafting-combinator]',
-    icon = '__Recipe_Combinator_2.0__/graphics/recipe-book.png',
+    icon = '__Recipe_Combinator_2_0__/graphics/recipe-book.png',
     icon_size = 64,
 },
 {
@@ -30,7 +30,7 @@ rc.energy_source = { type = 'void' }
 rc.energy_usage_per_tick = '1W'
 
 for direction, definition in pairs(rc.multiply_symbol_sprites) do
-definition.filename = '__Recipe_Combinator_2.0__/graphics/hr-combinator-displays.png'
+definition.filename = '__Recipe_Combinator_2_0__/graphics/hr-combinator-displays.png'
 	--rc.multiply_symbol_sprites[direction] = definition.hr_version
 end
 
@@ -49,7 +49,7 @@ table.insert(data.raw['technology']['circuit-network'].effects, {type = 'unlock-
 
 
 local trans = {
-	filename = '__Recipe_Combinator_2.0__/graphics/trans.png',
+	filename = '__Recipe_Combinator_2_0__/graphics/trans.png',
 	width = 1,
 	height = 1,
 }

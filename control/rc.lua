@@ -103,6 +103,8 @@ local entity = event.entity
 local unit_number = entity.unit_number
 local combinator = storage.rc.data[unit_number]
 
+if not combinator then return end
+
 combinator.output_proxy.destroy()
 combinator.selector.destroy()
 combinator.signal_cache.destroy()

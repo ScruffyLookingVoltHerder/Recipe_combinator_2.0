@@ -28,6 +28,7 @@ local function process_recipe(name, recipe)
     local test=0
     --new_recipe.subgroup=recipe.subgroup
     new_recipe.subgroup="recipe-subgroup"
+    new_recipe.localised_name=recipe.name
 
     data.raw.recipe[name.."_rcomb"]=new_recipe
 

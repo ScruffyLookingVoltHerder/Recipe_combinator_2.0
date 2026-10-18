@@ -1,4 +1,3 @@
-local icons = require '__rusty-locale__.icons'
 local debug_mode=false
 local rc_name="recipe_combinator"
 require("style")
@@ -38,7 +37,7 @@ end
 local rc_item = table.deepcopy(data.raw['item']['arithmetic-combinator'])
 rc_item.name = rc_name
 rc_item.place_result = rc_name
-rc_item.icons = icons.of(rc)
+rc_item.icons = rc.icons or {{icon = rc.icon, icon_size = rc.icon_size or 64}}
 rc_item.subgroup = 'circuit-network'
 rc_item.order = 'c[combinators]-m[recipe-combinator]'
 
